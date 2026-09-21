@@ -4,203 +4,61 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin BUMDes Tapak Makmur</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      background: #f2f6f3;
-      color: #222;
-    }
-
-    header {
-      background: #087f3e;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-
-    header h1 {
-      font-size: 24px;
-      margin-bottom: 5px;
-    }
-
-    header p {
-      font-size: 14px;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 25px auto;
-      padding: 15px;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-    }
-
-    .card h2 {
-      color: #087f3e;
-      margin-bottom: 15px;
-    }
-
-    label {
-      display: block;
-      margin-top: 12px;
-      margin-bottom: 6px;
-      font-weight: bold;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
-    }
-
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    button {
-      margin-top: 15px;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 8px;
-      background: #087f3e;
-      color: white;
-      font-size: 15px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #05652f;
-    }
-
-    .back {
-      display: inline-block;
-      margin-top: 10px;
-      color: #087f3e;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .info {
-      background: #e8f5ed;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 15px;
-      line-height: 1.6;
-    }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
+  <h1>Admin BUMDes Tapak Makmur</h1>
 
-  <header>
-    <h1>ADMIN BUMDes</h1>
-    <p>BUMDes Tapak Makmur Desa Gekeng Deran</p>
-  </header>
+  <input id="judul" placeholder="Judul berita">
+  <br><br>
 
-  <div class="container">
+  <textarea id="isi" rows="8" placeholder="Isi berita"></textarea>
+  <br><br>
 
-    <div class="card">
-      <h2>📝 Tambah Berita / Kegiatan</h2>
+  <input id="foto" placeholder="Link foto (opsional)">
+  <br><br>
 
-      <label>Judul Berita</label>
-      <input type="text" id="judul" placeholder="Masukkan judul berita">
+  <button onclick="simpanBerita()">Simpan Berita</button>
 
-      <label>Tanggal</label>
-      <input type="date" id="tanggal">
-
-      <label>Isi Berita</label>
-      <textarea id="isi" placeholder="Tuliskan berita atau kegiatan BUMDes..."></textarea>
-
-      <label>Link Foto</label>
-      <input type="text" id="foto" placeholder="Masukkan link foto">
-
-      <button onclick="simpanBerita()">💾 Simpan Berita</button>
-
-      <div class="info">
-        <strong>Catatan:</strong><br>
-        Halaman ini merupakan halaman admin sederhana.
-        Data yang dimasukkan akan tersimpan sementara di browser perangkat.
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>📞 Informasi Kontak</h2>
-
-      <label>Nomor WhatsApp</label>
-      <input type="text" id="wa" placeholder="Contoh: 628123456789">
-
-      <label>Alamat Desa</label>
-      <input type="text" id="alamat" placeholder="Alamat Desa Gekeng Deran">
-
-      <button onclick="simpanKontak()">💾 Simpan Kontak</button>
-    </div>
-
-    <div class="card">
-      <h2>🌐 Website</h2>
-      <a class="back" href="index.html">
-        ← Kembali ke Website BUMDes
-      </a>
-    </div>
-
-  </div>
+  <p id="pesan"></p>
 
   <script>
+    const SUPABASE_URL = "https://kpdvtbxshxapaqdqhdsa.supabase.co";
 
-    function simpanBerita() {
+    const SUPABASE_KEY = "TEMPEL_PUBLISHABLE_KEY_DI_SINI";
 
-      let judul = document.getElementById("judul").value;
-      let tanggal = document.getElementById("tanggal").value;
-      let isi = document.getElementById("isi").value;
-      let foto = document.getElementById("foto").value;
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
-      if (judul === "" || isi === "") {
-        alert("Judul dan isi berita harus diisi!");
+    async function simpanBerita() {
+      const judul = document.getElementById("judul").value;
+      const isi = document.getElementById("isi").value;
+      const foto = document.getElementById("foto").value;
+
+      if (!judul || !isi) {
+        document.getElementById("pesan").innerText =
+          "Judul dan isi berita wajib diisi.";
         return;
       }
 
-      let berita = {
-        judul: judul,
-        tanggal: tanggal,
-        isi: isi,
-        foto: foto
-      };
+      const { error } = await supabaseClient
+        .from("Berita")
+        .insert([{ judul, isi, foto }]);
 
-      localStorage.setItem("beritaBUMDes", JSON.stringify(berita));
-
-      alert("Berita berhasil disimpan!");
-
+      if (error) {
+        document.getElementById("pesan").innerText =
+          "Gagal: " + error.message;
+      } else {
+        document.getElementById("pesan").innerText =
+          "✅ Berita berhasil disimpan!";
+        document.getElementById("judul").value = "";
+        document.getElementById("isi").value = "";
+        document.getElementById("foto").value = "";
+      }
     }
-
-
-    function simpanKontak() {
-
-      let wa = document.getElementById("wa").value;
-      let alamat = document.getElementById("alamat").value;
-
-      localStorage.setItem("waBUMDes", wa);
-      localStorage.setItem("alamatBUMDes", alamat);
-
-      alert("Informasi kontak berhasil disimpan!");
-
-    }
-
   </script>
-
 </body>
 </html>
